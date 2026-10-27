@@ -1,0 +1,42 @@
+# roles/postgresql/tasks/main.yml — le serveur de base de données
+---
+- name: Installer PostgreSQL et le pilote Python dont Ansible a besoin
+  ansible.builtin.apt:
+    name:
+      - postgresql
+      - python3-psycopg2
+    state: present
+
+- name: Démarrer PostgreSQL et l'activer au démarrage
+  ansible.builtin.systemd_service:
+    name: postgresql
+    state: started
+    enabled: true
+
+- name: Écouter sur toutes les interfaces (pas seulement localhost)
+  ansible.builtin.lineinfile:
+    path: "{{ postgresql_repertoire_conf }}/postgresql.conf"
+    regexp: "^#?listen_addresses\\s*="
+    line: "listen_addresses = '*'"
+  notify: Redémarrer PostgreSQL
+
+- name: Autoriser l'utilisateur StockLine depuis le réseau Docker (samenet)
+  ansible.builtin.lineinfile:
+    path: "{{ postgresql_repertoire_conf }}/pg_hba.conf"
+    line: "host    {{ stockline_db_nom }}    {{ stockline_db_utilisateur }}    samenet    scram-sha-256"
+  notify: Redémarrer PostgreSQL
+
+- name: Créer l'utilisateur de la base StockLine
+  community.postgresql.postgresql_user:
+    name: "{{ stockline_db_utilisateur }}"
+    password: "{{ stockline_db_mot_de_passe }}"
+  become: true
+  become_user: postgres
+  no_log: true
+
+- name: Créer la base StockLine (propriété de l'utilisateur stockline)
+  community.postgresql.postgresql_db:
+    name: "{{ stockline_db_nom }}"
+    owner: "{{ stockline_db_utilisateur }}"
+  become: true
+  become_user: postgres

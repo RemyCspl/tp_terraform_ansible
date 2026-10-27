@@ -1,0 +1,8 @@
+# roles/commun/defaults/main.yml — valeurs par défaut du rôle (précédence la plus faible)
+---
+commun_paquets:
+  - curl
+  - ca-certificates
+  - acl
+  - less
+  - iproute2

@@ -1,0 +1,5 @@
+# roles/postgresql/defaults/main.yml
+---
+# Ubuntu 24.04 fournit PostgreSQL 16
+postgresql_version: "16"
+postgresql_repertoire_conf: "/etc/postgresql/{{ postgresql_version }}/main"

@@ -1,0 +1,52 @@
+# roles/nginx/tasks/main.yml — le répartiteur de charge devant les API
+---
+- name: Installer nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+
+- name: Déposer la configuration du répartiteur
+  ansible.builtin.template:
+    src: stockline.conf.j2
+    dest: /etc/nginx/sites-available/stockline.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify:
+    - Tester la configuration nginx
+    - Recharger nginx
+
+- name: Activer le site StockLine
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/stockline.conf
+    dest: /etc/nginx/sites-enabled/stockline.conf
+    state: link
+  notify:
+    - Tester la configuration nginx
+    - Recharger nginx
+
+- name: Désactiver le site par défaut de nginx
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify:
+    - Tester la configuration nginx
+    - Recharger nginx
+
+- name: Démarrer nginx et l'activer au démarrage
+  ansible.builtin.systemd_service:
+    name: nginx
+    state: started
+    enabled: true
+
+- name: Exécuter maintenant les rechargements en attente
+  ansible.builtin.meta: flush_handlers
+
+- name: Vérifier que le répartiteur joint l'API
+  ansible.builtin.uri:
+    url: http://127.0.0.1/sante
+    return_content: true
+  register: sante_lb
+  until: sante_lb.json is defined and sante_lb.json.base_de_donnees == "ok"
+  retries: 10
+  delay: 2

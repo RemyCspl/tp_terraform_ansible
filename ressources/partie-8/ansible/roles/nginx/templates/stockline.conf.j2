@@ -1,0 +1,22 @@
+# {{ ansible_managed }}
+# Répartiteur de charge : les requêtes sont distribuées à tour de rôle
+# entre TOUS les serveurs du groupe Ansible « api ».
+
+upstream stockline_api {
+{% for serveur in groups['api'] %}
+    server {{ hostvars[serveur]['nom_conteneur'] }}:{{ stockline_port }};
+{% endfor %}
+}
+
+server {
+    listen 80 default_server;
+    server_name _;
+
+    location / {
+        proxy_pass http://stockline_api;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        # En-tête de réponse indiquant quel serveur api a répondu (IP:port)
+        add_header X-Servi-Par $upstream_addr always;
+    }
+}

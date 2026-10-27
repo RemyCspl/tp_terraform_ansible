@@ -1,0 +1,19 @@
+# roles/commun/tasks/main.yml — le socle installé sur TOUS les serveurs
+---
+- name: Mettre à jour le cache apt (au plus une fois par heure)
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Installer les paquets communs
+  ansible.builtin.apt:
+    name: "{{ commun_paquets }}"
+    state: present
+
+- name: Déposer le message d'accueil (motd)
+  ansible.builtin.template:
+    src: motd.j2
+    dest: /etc/motd
+    owner: root
+    group: root
+    mode: "0644"

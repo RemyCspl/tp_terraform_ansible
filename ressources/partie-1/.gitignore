@@ -1,0 +1,9 @@
+# Terraform : dossier des providers, state (contient des données sensibles), plans
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/tfplan*
+
+# Ansible : mot de passe du coffre (JAMAIS commité) et inventaire généré
+ansible/.vault-pass
+ansible/inventory.ini

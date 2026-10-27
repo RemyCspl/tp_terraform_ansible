@@ -1,0 +1,17 @@
+# {{ ansible_managed }}
+[Unit]
+Description=StockLine - API d'inventaire
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User={{ stockline_utilisateur }}
+Group={{ stockline_utilisateur }}
+WorkingDirectory={{ stockline_repertoire }}
+EnvironmentFile=/etc/stockline/stockline.env
+ExecStart={{ stockline_repertoire }}/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port {{ stockline_port }}
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,33 @@
+Workshop guidé — Terraform + Ansible : StockLine de bout en bout
+=================================================================
+
+CONTENU
+-------
+workshop-terraform-ansible.html   l'énoncé, version de travail (bouton « Copier » sur chaque bloc)
+workshop-terraform-ansible.pdf    l'énoncé, version lecture / impression
+workshop-terraform-ansible.md     l'énoncé au format Markdown (lisible dans VS Code)
+ressources/
+  stockline/                      le code complet de l'application StockLine (partie 1.3)
+  partie-1/ ... partie-9/         chaque fichier créé ou modifié dans la partie N,
+                                  dans sa version exacte de cette partie,
+                                  rangé comme dans ~/tp-iac
+  cours/                          les fichiers du cours cités par l'énoncé
+                                  (00-WSL/commands.sh, 10-IaC/setup_ansible/docker/Dockerfile)
+
+Quatre fichiers du sujet ne sont PAS dans le ZIP, car chaque poste les génère
+lui-même pendant le workshop avec les commandes de l'énoncé :
+  image-cible/authorized_keys     votre clé SSH publique (partie 1.2)
+  ansible/.vault-pass             le mot de passe de VOTRE coffre (partie 6.1)
+  ansible/group_vars/all/vault.yml   votre coffre chiffré (partie 6.1)
+  ansible/inventory.ini           écrit par Terraform (partie 4)
+
+MODE D'EMPLOI
+-------------
+1. Ouvrez workshop-terraform-ansible.html dans votre navigateur (double-clic).
+2. Ouvrez votre terminal Ubuntu WSL (lab-m2i) ; collez chaque bloc avec un clic droit
+   ou Ctrl+Maj+V, dans l'ordre, en commençant par la Partie 0.
+3. Ne copiez JAMAIS les commandes depuis le PDF : il coupe les longues lignes.
+4. Chaque vérification affiche OK ou ERREUR. En cas d'ERREUR, consultez la section
+   « Dépannage » de l'énoncé ou appelez le formateur. Ne passez pas à la suite.
+5. Le dossier ressources/ sert à relire un fichier ou à vérifier une saisie :
+   la méthode de travail reste le copier-coller des blocs de l'énoncé.

@@ -1,0 +1,4 @@
+# roles/stockline/defaults/main.yml
+---
+stockline_repertoire: /opt/stockline
+stockline_utilisateur: stockline

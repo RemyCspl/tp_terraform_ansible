@@ -1,0 +1,102 @@
+# roles/stockline/tasks/main.yml — l'API StockLine, servie par systemd
+---
+- name: Installer venv (environnements virtuels) et packaging (requis par le module pip)
+  ansible.builtin.apt:
+    name:
+      - python3-venv
+      - python3-packaging
+    state: present
+
+- name: Créer l'utilisateur système qui fera tourner l'API
+  ansible.builtin.user:
+    name: "{{ stockline_utilisateur }}"
+    system: true
+    shell: /usr/sbin/nologin
+    home: "{{ stockline_repertoire }}"
+    create_home: false
+
+- name: Créer le répertoire de l'application
+  ansible.builtin.file:
+    path: "{{ stockline_repertoire }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Copier le code de l'application (dossier stockline/app du poste)
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../stockline/app"
+    dest: "{{ stockline_repertoire }}/"
+    owner: root
+    group: root
+    mode: "0644"
+    directory_mode: "0755"
+  notify: Redémarrer StockLine
+
+- name: Copier la liste des dépendances Python
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../stockline/requirements.txt"
+    dest: "{{ stockline_repertoire }}/requirements.txt"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Installer les dépendances dans un environnement virtuel
+  ansible.builtin.pip:
+    requirements: "{{ stockline_repertoire }}/requirements.txt"
+    virtualenv: "{{ stockline_repertoire }}/venv"
+    virtualenv_command: python3 -m venv
+  notify: Redémarrer StockLine
+
+- name: Installer le pilote PostgreSQL dans le même environnement virtuel
+  ansible.builtin.pip:
+    name: psycopg2-binary==2.9.10
+    virtualenv: "{{ stockline_repertoire }}/venv"
+    virtualenv_command: python3 -m venv
+  notify: Redémarrer StockLine
+
+- name: Créer le répertoire de configuration (lisible par stockline seulement)
+  ansible.builtin.file:
+    path: /etc/stockline
+    state: directory
+    owner: root
+    group: "{{ stockline_utilisateur }}"
+    mode: "0750"
+
+- name: Déposer le fichier d'environnement (il contient le mot de passe)
+  ansible.builtin.template:
+    src: stockline.env.j2
+    dest: /etc/stockline/stockline.env
+    owner: root
+    group: "{{ stockline_utilisateur }}"
+    mode: "0640"
+  diff: false
+  notify: Redémarrer StockLine
+
+- name: Déposer l'unité systemd
+  ansible.builtin.template:
+    src: stockline.service.j2
+    dest: /etc/systemd/system/stockline.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Redémarrer StockLine
+
+- name: Démarrer StockLine et l'activer au démarrage
+  ansible.builtin.systemd_service:
+    name: stockline
+    state: started
+    enabled: true
+    daemon_reload: true
+
+- name: Exécuter maintenant les redémarrages en attente
+  ansible.builtin.meta: flush_handlers
+
+- name: Vérifier que l'API répond ET joint la base de données
+  ansible.builtin.uri:
+    url: "http://127.0.0.1:{{ stockline_port }}/sante"
+    return_content: true
+  register: sante
+  until: sante.json is defined and sante.json.base_de_donnees == "ok"
+  retries: 15
+  delay: 2

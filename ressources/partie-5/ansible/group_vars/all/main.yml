@@ -1,0 +1,3 @@
+# group_vars/all/main.yml — variables communes à TOUS les serveurs
+---
+environnement: formation

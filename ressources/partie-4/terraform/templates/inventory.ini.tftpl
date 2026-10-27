@@ -1,0 +1,13 @@
+# Fichier GÉNÉRÉ par Terraform (terraform/templates/inventory.ini.tftpl).
+# Ne le modifiez pas à la main : il est réécrit à chaque terraform apply.
+%{ for groupe, noms in groupes ~}
+
+[${groupe}]
+%{ for nom in noms ~}
+${nom} ansible_host=127.0.0.1 ansible_port=${serveurs[nom].port_ssh} nom_conteneur=${prefixe}-${nom}
+%{ endfor ~}
+%{ endfor ~}
+
+[all:vars]
+ansible_user=ansible
+ansible_ssh_private_key_file=${cle_ssh}

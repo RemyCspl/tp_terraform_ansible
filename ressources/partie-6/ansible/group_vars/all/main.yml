@@ -1,0 +1,17 @@
+# group_vars/all/main.yml — variables communes à TOUS les serveurs
+---
+environnement: formation
+
+# Base de données de StockLine
+stockline_db_nom: stockline
+stockline_db_utilisateur: stockline
+
+# Le mot de passe vit CHIFFRÉ dans vault.yml : ici, on ne fait que le référencer
+stockline_db_mot_de_passe: "{{ vault_stockline_db_mot_de_passe }}"
+
+# Le serveur de base de données = le premier membre du groupe « db »,
+# joint par son nom de conteneur sur le réseau Docker
+stockline_db_hote: "{{ hostvars[groups['db'][0]]['nom_conteneur'] }}"
+
+# Port d'écoute de l'API sur chaque serveur du groupe « api »
+stockline_port: 8000

@@ -1,0 +1,8 @@
+# {{ ansible_managed }}
+==============================================================
+ Serveur       : {{ inventory_hostname }} ({{ nom_conteneur }})
+ Groupe(s)     : {{ group_names | join(', ') }}
+ Environnement : {{ environnement }}
+ Système       : {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}
+ Configuré par Ansible : toute modification manuelle sera écrasée.
+==============================================================

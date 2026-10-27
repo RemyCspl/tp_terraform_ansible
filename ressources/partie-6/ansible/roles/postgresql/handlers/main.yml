@@ -1,0 +1,8 @@
+# roles/postgresql/handlers/main.yml
+# Un handler ne s'exécute QUE s'il a été notifié par une tâche « changed »,
+# une seule fois, à la fin du play.
+---
+- name: Redémarrer PostgreSQL
+  ansible.builtin.systemd_service:
+    name: postgresql
+    state: restarted

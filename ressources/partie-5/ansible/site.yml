@@ -1,0 +1,7 @@
+# site.yml — LE playbook du projet : chaque play applique des rôles à un groupe
+---
+- name: Socle commun à tous les serveurs
+  hosts: all
+  become: true
+  roles:
+    - commun

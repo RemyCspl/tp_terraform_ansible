@@ -1,0 +1,13 @@
+# roles/nginx/handlers/main.yml
+# Les handlers s'exécutent dans l'ordre où ils sont ÉCRITS ici :
+# d'abord on teste la configuration, ensuite seulement on recharge.
+# Si le test échoue, le play s'arrête et nginx garde l'ancienne configuration.
+---
+- name: Tester la configuration nginx
+  ansible.builtin.command: nginx -t
+  changed_when: false
+
+- name: Recharger nginx
+  ansible.builtin.systemd_service:
+    name: nginx
+    state: reloaded
